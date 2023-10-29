@@ -101,7 +101,7 @@ def main():
             st.write("Already, Embeddings loaded from the your folder (disks)")
         else:
             if not os.path.exists(os.path.join(DIR_NAME, f"{store_name}.pkl")):
-                pdf_path = translate_pdf(bytes_data, DIR_NAME, translate=(doc_lang == "Hebrew"))
+                pdf_path = translate_pdf(pdf.name, bytes_data, DIR_NAME, translate=(doc_lang == "Hebrew"))
                 loader = PyPDFLoader(pdf_path)
                 documents = loader.load()
                 text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
