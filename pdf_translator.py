@@ -22,6 +22,7 @@ def convert_pdf_to_images(input_pdf_bytes):
 # Sub-task 3: Use OCR to extract Hebrew text from each image
 def process_image(i, image, dir_name):
     # pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.3.3/bin/tesseract'  # Update this path
+    pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
     IMAGE_PATH = os.path.join(dir_name, f'temp{i}.png')
     image.save(IMAGE_PATH, 'png')
     image = cv2.imread(IMAGE_PATH)
