@@ -1,7 +1,7 @@
 import os
 
 import cv2
-from pdf2image import convert_from_path
+from pdf2image import pdfinfo_from_bytes
 import pytesseract
 from deep_translator import GoogleTranslator
 from reportlab.lib.pagesizes import letter
@@ -11,10 +11,10 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 # Sub-task 2: Convert each PDF page to an image
-def convert_pdf_to_images(input_pdf_path):
+def convert_pdf_to_images(input_pdf_bytes):
     images = []
     # pages = convert_from_path(input_pdf_path, poppler_path='/opt/homebrew/Cellar/poppler/23.10.0/bin', thread_count=10)
-    pages = convert_from_path(input_pdf_path, thread_count=10)
+    pages = pdfinfo_from_bytes(input_pdf_bytes, thread_count=10)
     images.extend(pages)
     return images
 
@@ -75,8 +75,8 @@ def create_translated_pdf(translated_texts, input_pdf_path):
     return output_pdf_path
 
 
-def translate_pdf(input_pdf_path, dir_name, translate=True):
-    images = convert_pdf_to_images(input_pdf_path)
+def translate_pdf(input_pdf_path, input_pdf_bytes, dir_name, translate=True):
+    images = convert_pdf_to_images(input_pdf_bytes)
     texts = extract_text(images, dir_name)
     if translate:
         texts = translate_texts(texts)
