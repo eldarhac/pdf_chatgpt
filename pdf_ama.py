@@ -15,10 +15,6 @@ from langchain.callbacks import get_openai_callback
 
 import pickle
 import os
-from subprocess import STDOUT, check_call
-check_call(['apt-get', 'install', 'poppler-utils'],
-     stdout=open(os.devnull,'wb'), stderr=STDOUT) 
-
 
 # load api key lib
 from dotenv import load_dotenv
