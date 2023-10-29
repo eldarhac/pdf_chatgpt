@@ -63,7 +63,7 @@ def init():
 
 
 def main():
-    init()
+    # init()
 
     doc_lang = st.selectbox(
         'Which language is your document in?',
@@ -72,7 +72,7 @@ def main():
     st.write('You selected:', doc_lang)
 
     tr = lambda msg: GoogleTranslator(source='auto', target='en').translate(msg)
-    llm = ChatOpenAI(model_name="gpt-3.5-turbo")
+    llm = ChatOpenAI(model_name="gpt-3.5-turbo", openai_api_key=st.secrets["OPENAI_API_KEY"])
 
     # upload a your pdf file
     pdf = st.file_uploader("Upload your PDF", type='pdf')
