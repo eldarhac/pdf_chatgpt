@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 def convert_pdf_to_images(input_pdf_bytes):
     images = []
     # pages = convert_from_path(input_pdf_path, poppler_path='/opt/homebrew/Cellar/poppler/23.10.0/bin', thread_count=10)
-    pages = pdfinfo_from_bytes(input_pdf_bytes, thread_count=10)
+    pages = pdfinfo_from_bytes(input_pdf_bytes)
     images.extend(pages)
     return images
 
