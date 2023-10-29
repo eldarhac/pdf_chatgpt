@@ -13,14 +13,15 @@ from concurrent.futures import ThreadPoolExecutor
 # Sub-task 2: Convert each PDF page to an image
 def convert_pdf_to_images(input_pdf_path):
     images = []
-    pages = convert_from_path(input_pdf_path, poppler_path='/opt/homebrew/Cellar/poppler/23.10.0/bin', thread_count=10)
+    # pages = convert_from_path(input_pdf_path, poppler_path='/opt/homebrew/Cellar/poppler/23.10.0/bin', thread_count=10)
+    pages = convert_from_path(input_pdf_path, thread_count=10)
     images.extend(pages)
     return images
 
 
 # Sub-task 3: Use OCR to extract Hebrew text from each image
 def process_image(i, image, dir_name):
-    pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.3.3/bin/tesseract'  # Update this path
+    # pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.3.3/bin/tesseract'  # Update this path
     IMAGE_PATH = os.path.join(dir_name, f'temp{i}.png')
     image.save(IMAGE_PATH, 'png')
     image = cv2.imread(IMAGE_PATH)
