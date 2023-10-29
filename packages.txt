@@ -1,7 +1,5 @@
 poppler-utils
 tesseract-ocr
-tesseract-ocr-dev
-libtesseract-dev
 python3-pil
 tesseract-ocr-eng
 tesseract-ocr-heb
