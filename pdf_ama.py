@@ -76,9 +76,9 @@ def main():
 
     # upload a your pdf file
     pdf = st.file_uploader("Upload your PDF", type='pdf')
-    bytes_data = pdf.read()
 
     if pdf is not None:
+        bytes_data = pdf.read()
         store_name = pdf.name[:-4]
         DIR_NAME = f"{store_name}_dir"
 
