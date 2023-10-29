@@ -1,7 +1,7 @@
 import os
 
 import cv2
-from pdf2image import pdfinfo_from_bytes
+from pdf2image import convert_from_bytes
 import pytesseract
 from deep_translator import GoogleTranslator
 from reportlab.lib.pagesizes import letter
@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 def convert_pdf_to_images(input_pdf_bytes):
     images = []
     # pages = convert_from_path(input_pdf_path, poppler_path='/opt/homebrew/Cellar/poppler/23.10.0/bin', thread_count=10)
-    pages = pdfinfo_from_bytes(input_pdf_bytes)
+    pages = convert_from_bytes(input_pdf_bytes)
     images.extend(pages)
     return images
 
