@@ -19,7 +19,7 @@ import os
 # load api key lib
 from dotenv import load_dotenv
 
-from config import config
+# from config import config
 from pdf_translator import translate_pdf
 
 # add_bg_from_local('images.jpeg')
@@ -48,7 +48,7 @@ load_dotenv()
 
 def init():
     # test that the API key exists
-    os.environ['OPENAI_API_KEY'] = config.get('OPENAI_API_KEY')
+    # os.environ['OPENAI_API_KEY'] = config.get('OPENAI_API_KEY')
     if os.getenv("OPENAI_API_KEY") is None or os.getenv("OPENAI_API_KEY") == "":
         print("OPENAI_API_KEY is not set")
         exit(1)
