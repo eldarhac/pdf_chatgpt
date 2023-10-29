@@ -1,7 +1,7 @@
 import os
 
 import cv2
-from pdf2image import convert_from_bytes
+from pdf2image import convert_from_bytes, convert_from_path
 import pytesseract
 from deep_translator import GoogleTranslator
 from reportlab.lib.pagesizes import letter
@@ -9,20 +9,22 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
 from concurrent.futures import ThreadPoolExecutor
 
+from config import config
+
 
 # Sub-task 2: Convert each PDF page to an image
-def convert_pdf_to_images(input_pdf_bytes):
+def convert_pdf_to_images(input_pdf_path):
     images = []
-    # pages = convert_from_path(input_pdf_path, poppler_path='/opt/homebrew/Cellar/poppler/23.10.0/bin', thread_count=10)
-    pages = convert_from_bytes(input_pdf_bytes)
+    pages = convert_from_path(input_pdf_path, poppler_path=config["POPPLER_PATH"], thread_count=10)
+    # pages = convert_from_bytes(input_pdf_bytes)
     images.extend(pages)
     return images
 
 
 # Sub-task 3: Use OCR to extract Hebrew text from each image
 def process_image(i, image, dir_name):
-    # pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.3.3/bin/tesseract'  # Update this path
-    pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
+    pytesseract.pytesseract.tesseract_cmd = config["TESSERACT_PATH"]
+    # pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
     IMAGE_PATH = os.path.join(dir_name, f'temp{i}.png')
     image.save(IMAGE_PATH, 'png')
     image = cv2.imread(IMAGE_PATH)
@@ -39,8 +41,7 @@ def process_image(i, image, dir_name):
 
 
 def extract_text(images, dir_name):
-    # pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.3.3/bin/tesseract'  # Update this path
-    pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
+    pytesseract.pytesseract.tesseract_cmd = config["TESSERACT_PATH"]
     with ThreadPoolExecutor(max_workers=10) as executor:
         texts = list(executor.map(lambda args: process_image(*args, dir_name), enumerate(images)))
     return texts
@@ -77,13 +78,9 @@ def create_translated_pdf(translated_texts, input_pdf_path):
     return output_pdf_path
 
 
-def translate_pdf(input_pdf_path, input_pdf_bytes, dir_name, translate=True):
-    images = convert_pdf_to_images(input_pdf_bytes)
+def translate_pdf(input_pdf_path, dir_name, translate=True):
+    images = convert_pdf_to_images(input_pdf_path)
     texts = extract_text(images, dir_name)
     if translate:
         texts = translate_texts(texts)
     return create_translated_pdf(texts, input_pdf_path)
-
-
-if __name__ == '__main__':
-    translate_pdf('nushnush.pdf', 'nushnush_dir')

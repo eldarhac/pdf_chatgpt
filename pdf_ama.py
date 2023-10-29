@@ -19,7 +19,7 @@ import os
 # load api key lib
 from dotenv import load_dotenv
 
-# from config import config
+from config import config
 from pdf_translator import translate_pdf
 
 # add_bg_from_local('images.jpeg')
@@ -48,7 +48,7 @@ load_dotenv()
 
 def init():
     # test that the API key exists
-    os.environ['OPENAI_API_KEY'] = st.secrets["OPENAI_API_KEY"]
+    os.environ['OPENAI_API_KEY'] = config.get('OPENAI_API_KEY')
     if os.getenv("OPENAI_API_KEY") is None or os.getenv("OPENAI_API_KEY") == "":
         print("OPENAI_API_KEY is not set")
         exit(1)
@@ -63,7 +63,7 @@ def init():
 
 
 def main():
-    # init()
+    init()
 
     doc_lang = st.selectbox(
         'Which language is your document in?',
@@ -72,13 +72,12 @@ def main():
     st.write('You selected:', doc_lang)
 
     tr = lambda msg: GoogleTranslator(source='auto', target='en').translate(msg)
-    llm = ChatOpenAI(model_name="gpt-3.5-turbo", openai_api_key=st.secrets["OPENAI_API_KEY"])
+    llm = ChatOpenAI(model_name="gpt-3.5-turbo")
 
     # upload a your pdf file
     pdf = st.file_uploader("Upload your PDF", type='pdf')
 
     if pdf is not None:
-        bytes_data = pdf.read()
         store_name = pdf.name[:-4]
         DIR_NAME = f"{store_name}_dir"
 
@@ -101,7 +100,7 @@ def main():
             st.write("Already, Embeddings loaded from the your folder (disks)")
         else:
             if not os.path.exists(os.path.join(DIR_NAME, f"{store_name}.pkl")):
-                pdf_path = translate_pdf(pdf.name, bytes_data, DIR_NAME, translate=(doc_lang == "Hebrew"))
+                pdf_path = translate_pdf(pdf.name, DIR_NAME, translate=(doc_lang == "Hebrew"))
                 loader = PyPDFLoader(pdf_path)
                 documents = loader.load()
                 text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
