@@ -19,6 +19,7 @@ import os
 # load api key lib
 from dotenv import load_dotenv
 
+from PagesRetriever import PagesRetriever
 from config import config
 from pdf_translator import translate_pdf
 
@@ -94,27 +95,42 @@ def main():
 
         st.header("📄Chat with your pdf file🤗")
 
-        if os.path.exists(os.path.join(DIR_NAME, f"{store_name}.pkl")):
+        if os.path.exists(os.path.join(DIR_NAME, f"{store_name}.pkl")) and os.path.exists(
+                os.path.join(DIR_NAME, f"{store_name}_page_map.pkl")):
             with open(os.path.join(DIR_NAME, f"{store_name}.pkl"), "rb") as f:
                 documents = pickle.load(f)
+            with open(os.path.join(DIR_NAME, f"{store_name}_page_map.pkl"), 'rb') as g:
+                page_map = pickle.load(g)
             st.write("Already, Embeddings loaded from the your folder (disks)")
-        else:
-            if not os.path.exists(os.path.join(DIR_NAME, f"{store_name}.pkl")):
-                pdf_path = translate_pdf(pdf.name, DIR_NAME, translate=(doc_lang == "Hebrew"))
-                loader = PyPDFLoader(pdf_path)
-                documents = loader.load()
-                text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-                documents = text_splitter.split_documents(documents)
 
-                with open(os.path.join(DIR_NAME, f"{store_name}.pkl"), "wb") as f:
-                    pickle.dump(documents, f)
+        else:
+            pdf_path = translate_pdf(pdf.name, DIR_NAME, translate=(doc_lang == "Hebrew"))
+            loader = PyPDFLoader(pdf_path)
+            pages = loader.load_and_split()
+            for page_num, page in enumerate(pages):
+                page.metadata["page_num"] = page_num
+            text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+            documents = text_splitter.split_documents(pages)
+
+            with open(os.path.join(DIR_NAME, f"{store_name}.pkl"), "wb") as f:
+                pickle.dump(documents, f)
+
+            page_map = {page.metadata["page_num"]: page for page in pages}
+
+            with open(os.path.join(DIR_NAME, f"{store_name}_page_map.pkl"), "wb") as g:
+                pickle.dump(page_map, g)
 
         embeddings = OpenAIEmbeddings()
         vectorstore = Chroma.from_documents(documents, embeddings)
         text = st.text_input("Your message: ", key="user_input")
         if len(text):
             user_input = GoogleTranslator(source='auto', target='en').translate(text)
-            qa = ConversationalRetrievalChain.from_llm(llm, vectorstore.as_retriever())
+            chroma_retriever = vectorstore.as_retriever()
+            retriever = PagesRetriever(vectorstore=chroma_retriever.vectorstore,
+                                       search_type=chroma_retriever.search_type,
+                                       search_kwargs=chroma_retriever.search_kwargs,
+                                       page_map=page_map)
+            qa = ConversationalRetrievalChain.from_llm(llm, retriever)
 
             if os.path.exists(os.path.join(DIR_NAME, f"{store_name}_history.pkl")):
                 with open(os.path.join(DIR_NAME, f"{store_name}_history.pkl"), "rb") as f:
@@ -142,11 +158,11 @@ def main():
 
         # display message history
         messages = st.session_state.get('messages', [])
-        for i, msg in enumerate(messages[1:]):
-            if i % 2 == 0:
-                message(msg.content, is_user=True, key=str(i) + '_user')
+        for page_num, msg in enumerate(messages[1:]):
+            if page_num % 2 == 0:
+                message(msg.content, is_user=True, key=str(page_num) + '_user')
             else:
-                message(msg.content, is_user=False, key=str(i) + '_ai')
+                message(msg.content, is_user=False, key=str(page_num) + '_ai')
 
 
 if __name__ == "__main__":
