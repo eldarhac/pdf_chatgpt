@@ -83,7 +83,7 @@ def create_translated_pdf(translated_texts, input_pdf_path):
 
 def translate_pdf(input_pdf_path, input_pdf_bytes, dir_name, translate=True):
     dir_name = os.path.join(current_dir, dir_name)
-    os.makedirs(dir_name, exists_ok=True)
+    os.makedirs(dir_name, exist_ok=True)
     images = convert_pdf_to_images(input_pdf_bytes)
     texts = extract_text(images, dir_name)
     if translate:
