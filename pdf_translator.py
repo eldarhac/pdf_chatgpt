@@ -15,7 +15,8 @@ from config import config
 # Sub-task 2: Convert each PDF page to an image
 def convert_pdf_to_images(input_pdf_path):
     images = []
-    pages = convert_from_path(input_pdf_path, poppler_path=config["POPPLER_PATH"], thread_count=10)
+    # pages = convert_from_path(input_pdf_path, poppler_path=config["POPPLER_PATH"], thread_count=10)
+    pages = convert_from_path(input_pdf_path, thread_count=10)
     # pages = convert_from_bytes(input_pdf_bytes)
     images.extend(pages)
     return images
