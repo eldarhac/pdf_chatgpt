@@ -1,5 +1,5 @@
 libpoppler-dev
-poppler-utils
+poppler-utils==23.10.0
 tesseract-ocr
 python3-pil
 tesseract-ocr-eng
