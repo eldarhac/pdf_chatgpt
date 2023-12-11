@@ -81,7 +81,7 @@ def create_translated_pdf(translated_texts, input_pdf_path):
 
 
 def translate_pdf(input_pdf_path, input_pdf_bytes, dir_name, translate=True):
-    images = convert_pdf_to_images(input_pdf_path)
+    images = convert_pdf_to_images(input_pdf_bytes)
     texts = extract_text(images, dir_name)
     if translate:
         texts = translate_texts(texts)
