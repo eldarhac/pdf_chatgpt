@@ -74,6 +74,8 @@ def create_translated_pdf(translated_texts, input_pdf_path):
         pars = translated_text.split("\n\n")
         for par in pars:
             if not par.isdigit():
+                par = par.replace('<', '&lt;')
+                par = par.replace('>', '&gt;')
                 paragraph = Paragraph(par, style)
                 story.append(paragraph)
         story.append(PageBreak())
