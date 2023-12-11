@@ -71,7 +71,6 @@ def main():
         ('Hebrew', 'English'))
 
     st.write('You selected:', doc_lang)
-    st.write(os.listdir(os.path.join(os.getcwd(), '../../../usr/bin/poppler/')))
     tr = lambda msg: GoogleTranslator(source='auto', target='en').translate(msg)
     llm = ChatOpenAI(model_name="gpt-3.5-turbo")
 
