@@ -1,3 +1,4 @@
+cmake
 poppler
 poppler-utils
 tesseract-ocr
