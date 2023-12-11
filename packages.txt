@@ -1,4 +1,3 @@
-poppler
 poppler-utils
 tesseract-ocr
 python3-pil
