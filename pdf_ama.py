@@ -104,8 +104,7 @@ def main():
             st.write("Already, Embeddings loaded from the your folder (disks)")
 
         else:
-            st.write(os.path.isfile(pdf.name))
-            pdf_path = translate_pdf(pdf.name, DIR_NAME, translate=(doc_lang == "Hebrew"))
+            pdf_path = translate_pdf(pdf.name, pdf.read(), DIR_NAME, translate=(doc_lang == "Hebrew"))
             loader = PyPDFLoader(pdf_path)
             pages = loader.load_and_split()
             for page_num, page in enumerate(pages):
