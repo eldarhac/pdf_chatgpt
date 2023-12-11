@@ -13,11 +13,11 @@ from config import config
 
 
 # Sub-task 2: Convert each PDF page to an image
-def convert_pdf_to_images(input_pdf_path):
+def convert_pdf_to_images(input_pdf_bytes):
     images = []
     # pages = convert_from_path(input_pdf_path, poppler_path=config["POPPLER_PATH"], thread_count=10)
-    pages = convert_from_path(input_pdf_path, thread_count=10)
-    # pages = convert_from_bytes(input_pdf_bytes)
+    # pages = convert_from_path(input_pdf_path, thread_count=10)
+    pages = convert_from_bytes(input_pdf_bytes)
     images.extend(pages)
     return images
 
@@ -80,7 +80,7 @@ def create_translated_pdf(translated_texts, input_pdf_path):
     return output_pdf_path
 
 
-def translate_pdf(input_pdf_path, dir_name, translate=True):
+def translate_pdf(input_pdf_path, input_pdf_bytes, dir_name, translate=True):
     images = convert_pdf_to_images(input_pdf_path)
     texts = extract_text(images, dir_name)
     if translate:
