@@ -81,6 +81,7 @@ def main():
         store_name = pdf.name[:-4]
         DIR_NAME = f"{store_name}_dir"
 
+        st.write(pdf.name)
         # initialize message history
         if "messages" not in st.session_state:
             st.session_state.messages = [
