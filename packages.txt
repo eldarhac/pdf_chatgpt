@@ -1,4 +1,4 @@
-poppler
+libpoppler-dev
 poppler-utils
 tesseract-ocr
 python3-pil
