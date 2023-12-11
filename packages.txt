@@ -1,3 +1,9 @@
+libc6=2.34-0ubuntu3
+libx11-6
+libfontconfig1
+libxrender1
+libcairo2-dev 
+pkg-config 
 cmake
 poppler
 poppler-utils
