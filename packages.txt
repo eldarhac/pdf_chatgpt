@@ -1,4 +1,4 @@
-libc6=2.34-0ubuntu3
+libc6
 libx11-6
 libfontconfig1
 libxrender1
