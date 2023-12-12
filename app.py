@@ -4,7 +4,6 @@ import os
 import tempfile
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -32,5 +31,4 @@ def upload_file():
     return render_template('upload.html', message=None)
 
 if __name__ == '__main__':
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     app.run(debug=True)
