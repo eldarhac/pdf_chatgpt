@@ -1,1 +1,1 @@
-web: sh setup.sh && streamlit run pdf_ama.py
+web: gunicorn app:app
