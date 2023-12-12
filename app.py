@@ -3,7 +3,7 @@ from pdf_ama import translate_pdf
 import os
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = '/uploads/'
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.basename(os.getcwd()), 'uploads')
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
