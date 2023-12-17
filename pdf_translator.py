@@ -44,7 +44,7 @@ def process_image(i, image, dir_name):
 
 
 def extract_text(images, dir_name):
-    pytesseract.pytesseract.tesseract_cmd = config["TESSERACT_PATH"]
+    pytesseract.pytesseract.tesseract_cmd = '/app/.apt/usr/bin/tesseract'
     with ThreadPoolExecutor(max_workers=10) as executor:
         texts = list(executor.map(lambda args: process_image(*args, dir_name), enumerate(images)))
     return texts
