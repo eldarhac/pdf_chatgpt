@@ -44,9 +44,9 @@ def process_image(i, image, dir_name):
 
 
 def extract_text(images, dir_name):
-    # with ThreadPoolExecutor(max_workers=2) as executor:
-    #     texts = list(executor.map(lambda args: process_image(*args, dir_name), enumerate(images)))
-    return [process_image(i, image, dir_name) for i, image in enumerate(images)]
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        texts = list(executor.map(lambda args: process_image(*args, dir_name), enumerate(images)))
+    return texts
 
 
 # Sub-task 4: Translate Hebrew text to English
@@ -55,9 +55,9 @@ def translate_text(i, text):
 
 
 def translate_texts(texts):
-    # with ThreadPoolExecutor(max_workers=2) as executor:
-    #     translated_texts = list(executor.map(lambda args: translate_text(*args), enumerate(texts)))
-    return [translate_text(i, text) for i, text in enumerate(texts)]
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        translated_texts = list(executor.map(lambda args: translate_text(*args), enumerate(texts)))
+    return translated_texts
 
 
 # Sub-task 5: Create a new PDF with the translated text, page by page
