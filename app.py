@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, send_file
-from pdf_ama import translate_pdf
+from pdf_translator import translate_pdf
 import os
 import tempfile
 
