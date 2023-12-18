@@ -40,7 +40,10 @@ def process_image(i, image, dir_name):
     text = text.replace('עייי', 'ע״י')
     text = text.replace('שייח', 'ש״ח')
     text = text.replace('ימיס', 'ימים')
-    os.remove(IMAGE_PATH)
+    try:
+        os.remove(IMAGE_PATH)
+    except:
+        pass
     return text
 
 
