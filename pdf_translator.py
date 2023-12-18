@@ -8,6 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
 from concurrent.futures import ThreadPoolExecutor
+import tempfile
 
 from config import config
 current_dir = os.path.abspath(os.getcwd())
