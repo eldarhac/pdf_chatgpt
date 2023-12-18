@@ -9,6 +9,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
 from concurrent.futures import ThreadPoolExecutor
 import tempfile
+from rq import Queue
+from worker import conn
 
 from config import config
 current_dir = os.path.abspath(os.getcwd())
@@ -91,11 +93,10 @@ def translate_pdf(input_pdf_path, translate=True):
     images = convert_pdf_to_images(input_pdf_bytes)
     os.remove(input_pdf_path)
     texts=[]
+    q = Queue(connection=conn)
     for i, image in enumerate(images):
-        text = process_image(i, image, dir_name)
+        text = q.enqueue(process_image, i, image, dir_name)
         if translate:
-            texts.append(translate_text(i, text))
-    # texts = extract_text(images, dir_name)
-    # if translate:
-    #     texts = translate_texts(texts)
-    return create_translated_pdf(texts, input_pdf_path)
+            text = q.enqueue(translate_text, i, text)
+        texts.append(text)
+    return q.enqueue(create_translated_pdf, texts, input_pdf_path)
