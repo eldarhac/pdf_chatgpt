@@ -28,22 +28,19 @@ def process_image(i, image, dir_name):
     pytesseract.pytesseract.tesseract_cmd = '/app/.apt/usr/bin/tesseract'
     # pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
     # IMAGE_PATH = os.path.join(dir_name, f'temp{i}.png')
-    IMAGE_PATH = os.path.join(dir_name, f'temp.png')
-    image.save(IMAGE_PATH, 'png')
-    image = cv2.imread(IMAGE_PATH)
-    (h, w) = image.shape[:2]
-    img = cv2.resize(image, (w * 3, h * 3))
-    gry = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    thr = cv2.threshold(gry, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-    text = pytesseract.image_to_string(thr, lang='heb')
-    text = text.replace('מייר', 'מ״ר')
-    text = text.replace('עייי', 'ע״י')
-    text = text.replace('שייח', 'ש״ח')
-    text = text.replace('ימיס', 'ימים')
-    try:
-        os.remove(IMAGE_PATH)
-    except:
-        pass
+    with tempfile.NamedTemporaryFile(suffix='.png', delete=True) as temp_file:
+        IMAGE_PATH = temp_file.name
+        image.save(IMAGE_PATH, 'png')
+        image = cv2.imread(IMAGE_PATH)
+        (h, w) = image.shape[:2]
+        img = cv2.resize(image, (w * 3, h * 3))
+        gry = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        thr = cv2.threshold(gry, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+        text = pytesseract.image_to_string(thr, lang='heb')
+        text = text.replace('מייר', 'מ״ר')
+        text = text.replace('עייי', 'ע״י')
+        text = text.replace('שייח', 'ש״ח')
+        text = text.replace('ימיס', 'ימים')
     return text
 
 
