@@ -27,7 +27,8 @@ def convert_pdf_to_images(input_pdf_bytes):
 def process_image(i, image, dir_name):
     pytesseract.pytesseract.tesseract_cmd = '/app/.apt/usr/bin/tesseract'
     # pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
-    IMAGE_PATH = os.path.join(dir_name, f'temp{i}.png')
+    # IMAGE_PATH = os.path.join(dir_name, f'temp{i}.png')
+    IMAGE_PATH = os.path.join(dir_name, f'temp.png')
     image.save(IMAGE_PATH, 'png')
     image = cv2.imread(IMAGE_PATH)
     (h, w) = image.shape[:2]
@@ -88,7 +89,11 @@ def translate_pdf(input_pdf_path, translate=True):
     dir_name = os.path.join(current_dir, os.path.basename(input_pdf_path)[:-4])
     os.makedirs(dir_name, exist_ok=True)
     images = convert_pdf_to_images(input_pdf_bytes)
-    texts = extract_text(images, dir_name)
-    if translate:
-        texts = translate_texts(texts)
+    for i, image in enumerate(images):
+        text = process_image(i, image, dir_name)
+        if translate:
+            texts.append(translate_text(i, text))
+    # texts = extract_text(images, dir_name)
+    # if translate:
+    #     texts = translate_texts(texts)
     return create_translated_pdf(texts, input_pdf_path)
