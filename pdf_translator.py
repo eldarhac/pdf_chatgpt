@@ -99,4 +99,4 @@ def translate_pdf(input_pdf_path, translate=True):
             text_job = q.enqueue(translate_text, i, text, depends_on[text_job])
         texts.append(text.return_value())
     translated_pdf = create_translated_pdf(texts, input_pdf_path)
-    return translated_pdf.result
+    return translated_pdf
