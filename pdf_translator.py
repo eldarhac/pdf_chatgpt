@@ -45,7 +45,7 @@ def process_image(i, image, dir_name):
 
 
 def extract_text(images, dir_name):
-    with ThreadPoolExecutor(max_workers=1) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         texts = list(executor.map(lambda args: process_image(*args, dir_name), enumerate(images)))
     return texts
 
@@ -56,7 +56,7 @@ def translate_text(i, text):
 
 
 def translate_texts(texts):
-    with ThreadPoolExecutor(max_workers=1) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         translated_texts = list(executor.map(lambda args: translate_text(*args), enumerate(texts)))
     return translated_texts
 
