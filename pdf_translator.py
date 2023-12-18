@@ -9,8 +9,6 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
 from concurrent.futures import ThreadPoolExecutor
 import tempfile
-from rq import Queue
-from worker import conn
 
 from config import config
 current_dir = os.path.abspath(os.getcwd())
@@ -30,19 +28,19 @@ def convert_pdf_to_images(input_pdf_bytes):
 def process_image(i, image, dir_name):
     pytesseract.pytesseract.tesseract_cmd = '/app/.apt/usr/bin/tesseract'
     # pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
-    IMAGE_PATH = os.path.join(dir_name, f'temp{i}.png')
-    image.save(IMAGE_PATH, 'png')
-    image = cv2.imread(IMAGE_PATH)
-    (h, w) = image.shape[:2]
-    img = cv2.resize(image, (w * 3, h * 3))
-    gry = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    thr = cv2.threshold(gry, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-    text = pytesseract.image_to_string(thr, lang='heb')
-    text = text.replace('מייר', 'מ״ר')
-    text = text.replace('עייי', 'ע״י')
-    text = text.replace('שייח', 'ש״ח')
-    text = text.replace('ימיס', 'ימים')
-    os.remove(IMAGE_PATH)
+    with tempfile.NamedTemporaryFile(prefix='.png', delete=True) as temp:
+        IMAGE_PATH = temp.name
+        image.save(IMAGE_PATH, 'png')
+        image = cv2.imread(IMAGE_PATH)
+        (h, w) = image.shape[:2]
+        img = cv2.resize(image, (w * 3, h * 3))
+        gry = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        thr = cv2.threshold(gry, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+        text = pytesseract.image_to_string(thr, lang='heb')
+        text = text.replace('מייר', 'מ״ר')
+        text = text.replace('עייי', 'ע״י')
+        text = text.replace('שייח', 'ש״ח')
+        text = text.replace('ימיס', 'ימים')
     return text
 
 
@@ -92,13 +90,7 @@ def translate_pdf(input_pdf_path, translate=True):
     images = convert_pdf_to_images(input_pdf_bytes)
     os.remove(input_pdf_path)
     texts=[]
-    q = Queue(connection=conn)
-    for i, image in enumerate(images):
-        text_job = q.enqueue(process_image, i, image, dir_name)
-        if translate:
-            text_job = q.enqueue(translate_text, i, text_job.return_value(), depends_on=[text_job])
-        while text_job.return_value() is None:
-            continue
-        texts.append(text_job.return_value())
-    translated_pdf = create_translated_pdf(texts, input_pdf_path)
-    return translated_pdf
+    texts = extract_text(images, dir_name)
+    if translate:
+        texts = translate_texts(texts)
+    return create_translated_pdf(texts, input_pdf_path)
