@@ -9,6 +9,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
 from concurrent.futures import ThreadPoolExecutor
 import tempfile
+from rq import Queue
+from worker import conn
 
 from config import config
 current_dir = os.path.abspath(os.getcwd())
@@ -45,7 +47,7 @@ def process_image(i, image, dir_name):
 
 
 def extract_text(images, dir_name):
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         texts = list(executor.map(lambda args: process_image(*args, dir_name), enumerate(images)))
     return texts
 
@@ -56,7 +58,7 @@ def translate_text(i, text):
 
 
 def translate_texts(texts):
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         translated_texts = list(executor.map(lambda args: translate_text(*args), enumerate(texts)))
     return translated_texts
 
@@ -83,14 +85,35 @@ def create_translated_pdf(translated_texts, input_pdf_path):
 
 
 def translate_pdf(input_pdf_path, translate=True):
+    redis_conn = Redis()
+    queue = Queue(connection=conn)
+
     with open(input_pdf_path, 'rb') as f:
         input_pdf_bytes = f.read()
     dir_name = os.path.join(current_dir, os.path.basename(input_pdf_path)[:-4])
     os.makedirs(dir_name, exist_ok=True)
-    images = convert_pdf_to_images(input_pdf_bytes)
+
+    # Enqueue PDF conversion task
+    job = enqueue_task(queue, convert_pdf_to_images, input_pdf_bytes)
+    time.sleep(0.5) # Wait for the job to be processed
+    images = job.result
+
     os.remove(input_pdf_path)
-    texts=[]
-    texts = extract_text(images, dir_name)
+    texts = []
+
+    # Enqueue text extraction tasks
+    for i, image in enumerate(images):
+        job = enqueue_task(queue, process_image, i, image, dir_name)
+        time.sleep(1) # Adjust waiting time as needed
+        texts.append(job.result)
+
     if translate:
-        texts = translate_texts(texts)
+        # Enqueue translation tasks
+        translated_texts = []
+        for i, text in enumerate(texts):
+            job = enqueue_task(queue, translate_text, i, text)
+            time.sleep(0.5) # Adjust waiting time as needed
+            translated_texts.append(job.result)
+        texts = translated_texts
+
     return create_translated_pdf(texts, input_pdf_path)
