@@ -20,7 +20,7 @@ if uploaded_file is not None:
         btn = st.download_button(
             label="Download Translated PDF",
             data=file,
-            file_name="translated.pdf",
+            file_name=f"{uploaded_file.name[:-4]}_translated.pdf",
             mime="application/octet-stream"
         )
 
