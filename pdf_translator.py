@@ -97,6 +97,6 @@ def translate_pdf(input_pdf_path, translate=True):
         text_job = q.enqueue(process_image, i, image, dir_name)
         if translate:
             text_job = q.enqueue(translate_text, i, text_job.return_value(), depends_on=[text_job])
-        texts.append(text.return_value())
+        texts.append(text_job.return_value())
     translated_pdf = create_translated_pdf(texts, input_pdf_path)
     return translated_pdf
