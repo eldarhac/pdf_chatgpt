@@ -62,7 +62,6 @@ def translate_texts(texts):
         translated_texts = list(executor.map(lambda args: translate_text(*args), enumerate(texts)))
     return translated_texts
 
-
 # Sub-task 5: Create a new PDF with the translated text, page by page
 def create_translated_pdf(translated_texts, input_pdf_path):
     output_pdf_path = f'{input_pdf_path[:-4]}_translated.pdf'
@@ -95,9 +94,9 @@ def translate_pdf(input_pdf_path, translate=True):
     texts=[]
     q = Queue(connection=conn)
     for i, image in enumerate(images):
-        text = q.enqueue(process_image, i, image, dir_name)
+        text_job = q.enqueue(process_image, i, image, dir_name)
         if translate:
-            text = q.enqueue(translate_text, i, text)
-        texts.append(text.result)
-    translated_pdf = q.enqueue(create_translated_pdf, texts, input_pdf_path)
+            text_job = q.enqueue(translate_text, i, text, depends_on[text_job])
+        texts.append(text.return_value())
+    translated_pdf = create_translated_pdf(texts, input_pdf_path)
     return translated_pdf.result
