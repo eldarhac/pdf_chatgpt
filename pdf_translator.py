@@ -92,6 +92,7 @@ def translate_pdf(input_pdf_path, translate=True):
     dir_name = os.path.join(current_dir, os.path.basename(input_pdf_path)[:-4])
     os.makedirs(dir_name, exist_ok=True)
     images = convert_pdf_to_images(input_pdf_bytes)
+    os.remove(input_pdf_path)
     texts=[]
     for i, image in enumerate(images):
         text = process_image(i, image, dir_name)
