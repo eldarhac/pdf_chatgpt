@@ -85,7 +85,6 @@ def create_translated_pdf(translated_texts, input_pdf_path):
 
 
 def translate_pdf(input_pdf_path, translate=True):
-    redis_conn = Redis()
     queue = Queue(connection=conn)
 
     with open(input_pdf_path, 'rb') as f:
