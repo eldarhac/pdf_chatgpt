@@ -94,7 +94,7 @@ def translate_pdf(input_pdf_path, translate=True):
     os.makedirs(dir_name, exist_ok=True)
 
     # Enqueue PDF conversion task
-    job = enqueue_task(queue, convert_pdf_to_images, input_pdf_bytes)
+    job = queue.enqueue(convert_pdf_to_images, input_pdf_bytes)
     time.sleep(0.5) # Wait for the job to be processed
     images = job.result
 
@@ -103,7 +103,7 @@ def translate_pdf(input_pdf_path, translate=True):
 
     # Enqueue text extraction tasks
     for i, image in enumerate(images):
-        job = enqueue_task(queue, process_image, i, image, dir_name)
+        job = queue.enqueue(process_image, i, image, dir_name)
         time.sleep(1) # Adjust waiting time as needed
         texts.append(job.result)
 
@@ -111,7 +111,7 @@ def translate_pdf(input_pdf_path, translate=True):
         # Enqueue translation tasks
         translated_texts = []
         for i, text in enumerate(texts):
-            job = enqueue_task(queue, translate_text, i, text)
+            job = queue.enqueue(translate_text, i, text)
             time.sleep(0.5) # Adjust waiting time as needed
             translated_texts.append(job.result)
         texts = translated_texts
