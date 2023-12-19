@@ -12,6 +12,7 @@ import streamlit as st
 
 from config import config
 
+PROGRESS_TEXT = 'Translating PDF...'
 
 # Sub-task 2: Convert each PDF page to an image
 def convert_pdf_to_images(input_pdf_bytes):
@@ -53,7 +54,7 @@ def extract_text(images, dir_name, bar):
             progress = idx / (len(images) * 2)
             # update progress bar
             texts[future.result()[1]] = future.result()[0]
-            bar.progress(progress)
+            bar.progress(progress, PROGRESS_TEXT)
     return texts
 
 
@@ -70,7 +71,7 @@ def translate_texts(texts, bar):
             progress = (len(texts) + idx) / (len(texts) * 2)
             # update progress bar
             translated_texts[future.result()[1]] = future.result()[0]
-            bar.progress(progress)
+            bar.progress(progress, PROGRESS_TEXT)
     return translated_texts
 
 
@@ -102,7 +103,7 @@ def translate_pdf(input_pdf_path, dir_name=None, translate=True):
     if dir_name is None:
         dir_name = os.path.join(input_pdf_path[:-4])
     images = convert_pdf_to_images(input_pdf_bytes)
-    bar = st.progress(0)
+    bar = st.progress(0, PROGRESS_TEXT)
     texts = extract_text(images, dir_name, bar)
     if translate:
         texts = translate_texts(texts, bar)
