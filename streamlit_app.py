@@ -4,8 +4,8 @@ import tempfile
 from pdf_translator import translate_pdf
 from random import randint
 
-if 'key' not in st.session_state:
-    st.session_state['key'] = 'value'
+# if 'key' not in st.session_state:
+#     st.session_state['key'] = 'value'
 
 # File uploader allows the user to upload a PDF
 uploaded_file = st.file_uploader("Choose a PDF file", type="pdf", key=2)
@@ -25,6 +25,6 @@ if uploaded_file is not None:
         )
         
     #Optional: Clean up if you want to clear the uploaded file
-    st.session_state.pop('key')
-    st.rerun()
+    # st.session_state.pop('key')
+    # st.rerun()
 
