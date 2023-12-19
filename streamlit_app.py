@@ -8,7 +8,8 @@ uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
 
 if uploaded_file is not None:
     # Save the file to a temporary directory
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmpfile:
+    file_path = 'uploaded_file.pdf'
+    with open(file_path, 'wb') as tmpfile:
         tmpfile.write(uploaded_file.getvalue())
         file_path = tmpfile.name
 
