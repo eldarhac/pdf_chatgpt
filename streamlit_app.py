@@ -14,14 +14,13 @@ if uploaded_file is not None:
 
     # Provide a link to download the translated file
     with open(translated_file_path, "rb") as file:
-        btn = st.download_button(
+        if st.download_button(
             label="Download Translated PDF",
             data=file,
             file_name=f"{uploaded_file.name[:-4]}_translated.pdf",
             mime="application/octet-stream"
-        )
-    if btn:
-        #Optional: Clean up if you want to delete the temporary files
-        os.remove(translated_file_path)
-        uploaded_file.key = str(randint(1000, 100000000))
-        st.rerun()
+        ):
+            #Optional: Clean up if you want to delete the temporary files
+            os.remove(translated_file_path)
+            uploaded_file.key = str(randint(1000, 100000000))
+            st.rerun()
