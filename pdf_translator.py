@@ -36,7 +36,7 @@ def process_image(i, image, dir_name):
     (h, w) = image.shape[:2]
     img = cv2.resize(image, (w * 3, h * 3))
     gry = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    thr = cv2.threshold(gry, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    thr = cv2.threshold(gry, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
     # apply a distance transform which calculates the distance to the
     # closest zero pixel for each pixel in the input image
     dist = cv2.distanceTransform(thr, cv2.DIST_L2, 5)
@@ -48,7 +48,9 @@ def process_image(i, image, dir_name):
     # threshold the distance transform using Otsu's method
     dist = cv2.threshold(dist, 0, 255,
     	cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    text = pytesseract.image_to_string(dist, lang='heb')
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
+    opening = cv2.morphologyEx(dist, cv2.MORPH_OPEN, kernel)
+    text = pytesseract.image_to_string(opening, lang='heb')
     text = text.replace('מייר', 'מ״ר')
     text = text.replace('עייי', 'ע״י')
     text = text.replace('שייח', 'ש״ח')
@@ -72,7 +74,7 @@ def extract_text(images, dir_name, bar):
 
 # Sub-task 4: Translate Hebrew text to English
 def translate_text(i, text):
-    return GoogleTranslator(source='auto', target='en').translate(text), i
+    return GoogleTranslator(source='iw', target='en').translate(text), i
 
 
 def translate_texts(texts, bar):
