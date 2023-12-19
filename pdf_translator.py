@@ -10,14 +10,12 @@ from reportlab.lib.styles import getSampleStyleSheet
 from concurrent.futures import ThreadPoolExecutor
 
 from config import config
-current_dir = os.path.abspath(os.getcwd())
 
 
 # Sub-task 2: Convert each PDF page to an image
 def convert_pdf_to_images(input_pdf_bytes):
     images = []
     # pages = convert_from_path(input_pdf_path, poppler_path=config["POPPLER_PATH"], thread_count=10)
-    # pages = convert_from_path(input_pdf_path, thread_count=10)
     pages = convert_from_bytes(input_pdf_bytes)
     images.extend(pages)
     return images
@@ -27,6 +25,7 @@ def convert_pdf_to_images(input_pdf_bytes):
 def process_image(i, image, dir_name):
     pytesseract.pytesseract.tesseract_cmd = config["TESSERACT_PATH"]
     # pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
+    os.makedirs(dir_name, exist_ok=True)
     IMAGE_PATH = os.path.join(dir_name, f'temp{i}.png')
     image.save(IMAGE_PATH, 'png')
     image = cv2.imread(IMAGE_PATH)
@@ -83,14 +82,19 @@ def create_translated_pdf(translated_texts, input_pdf_path):
     return output_pdf_path
 
 
-def translate_pdf(input_pdf_path, translate=True):
-    dir_name = input_pdf_path[:-4]
+def translate_pdf(input_pdf_path, dir_name=None, translate=True):
     with open(input_pdf_path, 'rb') as f:
         input_pdf_bytes = f.read()
-    dir_name = os.path.join(current_dir, dir_name)
-    os.makedirs(dir_name, exist_ok=True)
+    if dir_name is None:
+        dir_name = os.path.join(input_pdf_path[:-4])
     images = convert_pdf_to_images(input_pdf_bytes)
     texts = extract_text(images, dir_name)
     if translate:
         texts = translate_texts(texts)
     return create_translated_pdf(texts, input_pdf_path)
+
+
+if __name__ == '__main__':
+    for file_path in ['nispah_gilui.pdf']:
+        os.makedirs(file_path[:-4], exist_ok=True)
+        translate_pdf(file_path, file_path[:-4], translate=True)
