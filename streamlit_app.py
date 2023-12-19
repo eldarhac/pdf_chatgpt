@@ -22,6 +22,6 @@ if uploaded_file is not None:
         )
         
     #Optional: Clean up if you want to clear the uploaded file
-    st.session_state.pop('key')
+    st.session_state.pop(2)
     st.rerun()
 
