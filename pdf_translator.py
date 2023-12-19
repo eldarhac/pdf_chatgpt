@@ -58,7 +58,7 @@ def process_image(i, image, dir_name):
 
 def extract_text(images, dir_name, bar):
     pytesseract.pytesseract.tesseract_cmd = config["TESSERACT_PATH"]
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         text_futures = {executor.submit(process_image, i, image, dir_name): i for i, image in enumerate(images)}
         texts = [None] * len(images)
         for idx, future in enumerate(as_completed(text_futures), start=1):
@@ -75,7 +75,7 @@ def translate_text(i, text):
 
 
 def translate_texts(texts, bar):
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         text_futures = {executor.submit(translate_text, i, text): i for i, text in enumerate(texts)}
         translated_texts = [None] * len(texts)
         for idx, future in enumerate(as_completed(text_futures), start=1):
