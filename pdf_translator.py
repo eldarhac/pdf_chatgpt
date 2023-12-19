@@ -20,7 +20,7 @@ def convert_pdf_to_images(pdf_file):
     images = []
     # pages = convert_from_path(input_pdf_path, poppler_path=config["POPPLER_PATH"], thread_count=10)
     with st.spinner('Uploading PDF...'):
-        pages = convert_from_bytes(pdf_file.getvalue(), thread_count=10)
+        pages = convert_from_bytes(pdf_file.getvalue(), thread_count=4)
     images.extend(pages)
     return images
 
@@ -48,7 +48,7 @@ def process_image(i, image, dir_name):
 
 def extract_text(images, dir_name, bar):
     pytesseract.pytesseract.tesseract_cmd = config["TESSERACT_PATH"]
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         text_futures = {executor.submit(process_image, i, image, dir_name): i for i, image in enumerate(images)}
         texts = [None] * len(images)
         for idx, future in enumerate(as_completed(text_futures), start=1):
@@ -65,7 +65,7 @@ def translate_text(i, text):
 
 
 def translate_texts(texts, bar):
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         text_futures = {executor.submit(translate_text, i, text): i for i, text in enumerate(texts)}
         translated_texts = [None] * len(texts)
         for idx, future in enumerate(as_completed(text_futures), start=1):
@@ -104,10 +104,7 @@ def translate_pdf(pdf_file, dir_name=None, translate=True):
         dir_name = pdf_name
     images = convert_pdf_to_images(pdf_file)
     bar = st.progress(0, PROGRESS_TEXT)
-    try:
-        texts = extract_text(images, dir_name, bar)
-    except Exception as e:
-        st.error(str(e))
+    texts = extract_text(images, dir_name, bar)
     if translate:
         texts = translate_texts(texts, bar)
     bar.empty()
