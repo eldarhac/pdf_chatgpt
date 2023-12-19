@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import tempfile
 from pdf_translator import translate_pdf
+from random import randint
 
 # File uploader allows the user to upload a PDF
 uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
@@ -22,4 +23,5 @@ if uploaded_file is not None:
 
     #Optional: Clean up if you want to delete the temporary files
     os.remove(translated_file_path)
-    uploaded_file = None
+    uploaded_file.key = str(randint(1000, 100000000))
+    st.rerun()
