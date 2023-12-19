@@ -22,3 +22,4 @@ if uploaded_file is not None:
 
     #Optional: Clean up if you want to delete the temporary files
     os.remove(translated_file_path)
+    uploaded_file = None
