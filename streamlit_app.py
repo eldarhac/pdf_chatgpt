@@ -20,8 +20,8 @@ if uploaded_file is not None:
             file_name=f"{uploaded_file.name[:-4]}_translated.pdf",
             mime="application/octet-stream"
         )
-
-    #Optional: Clean up if you want to delete the temporary files
-    os.remove(translated_file_path)
-    uploaded_file.key = str(randint(1000, 100000000))
-    st.rerun()
+    if btn:
+        #Optional: Clean up if you want to delete the temporary files
+        os.remove(translated_file_path)
+        uploaded_file.key = str(randint(1000, 100000000))
+        st.rerun()
