@@ -16,11 +16,11 @@ PROGRESS_TEXT = 'Translating PDF...'
 
 
 # Sub-task 2: Convert each PDF page to an image
-def convert_pdf_to_images(input_pdf_bytes):
+def convert_pdf_to_images(pdf_file):
     images = []
     # pages = convert_from_path(input_pdf_path, poppler_path=config["POPPLER_PATH"], thread_count=10)
     with st.spinner('Uploading PDF...'):
-        pages = convert_from_bytes(input_pdf_bytes, thread_count=10)
+        pages = convert_from_bytes(pdf_file.getvalue(), thread_count=10)
     images.extend(pages)
     return images
 
@@ -77,8 +77,8 @@ def translate_texts(texts, bar):
 
 
 # Sub-task 5: Create a new PDF with the translated text, page by page
-def create_translated_pdf(translated_texts, input_pdf_path):
-    output_pdf_path = f'{input_pdf_path[:-4]}_translated.pdf'
+def create_translated_pdf(translated_texts, pdf_name):
+    output_pdf_path = f'{pdf_name}_translated.pdf'
     doc = SimpleDocTemplate(output_pdf_path, pagesize=letter)
     story = []
     styles = getSampleStyleSheet()
@@ -98,16 +98,14 @@ def create_translated_pdf(translated_texts, input_pdf_path):
     return output_pdf_path
 
 
-def translate_pdf(input_pdf_path, dir_name=None, translate=True):
-    with open(input_pdf_path, 'rb') as f:
-        input_pdf_bytes = f.read()
+def translate_pdf(pdf_file, dir_name=None, translate=True):
+    pdf_name = pdf_file.name[:-4]
     if dir_name is None:
-        dir_name = input_pdf_path[:-4]
-    os.makedirs(dir_name, exist_ok=True)
-    images = convert_pdf_to_images(input_pdf_bytes)
+        dir_name = pdf_name
+    images = convert_pdf_to_images(pdf_file)
     bar = st.progress(0, PROGRESS_TEXT)
     texts = extract_text(images, dir_name, bar)
     if translate:
         texts = translate_texts(texts, bar)
     bar.empty()
-    return create_translated_pdf(texts, input_pdf_path)
+    return create_translated_pdf(texts, pdf_name)
