@@ -22,6 +22,6 @@ if uploaded_file is not None:
             file_name=f"{uploaded_file.name[:-4]}_translated.pdf",
             mime="application/octet-stream"
         )
-    #Optional: Clean up if you want to delete the temporary files
-    os.remove(translated_file_path)
+        
+    #Optional: Clean up if you want to clear the uploaded file
     holder.empty()
