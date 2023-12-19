@@ -104,7 +104,10 @@ def translate_pdf(pdf_file, dir_name=None, translate=True):
         dir_name = pdf_name
     images = convert_pdf_to_images(pdf_file)
     bar = st.progress(0, PROGRESS_TEXT)
-    texts = extract_text(images, dir_name, bar)
+    try:
+        texts = extract_text(images, dir_name, bar)
+    except Exception as e:
+        st.error(str(e))
     if translate:
         texts = translate_texts(texts, bar)
     bar.empty()
