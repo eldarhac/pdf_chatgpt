@@ -39,7 +39,7 @@ def process_image(i, image, dir_name):
     thr = cv2.threshold(gry, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     # apply a distance transform which calculates the distance to the
     # closest zero pixel for each pixel in the input image
-    dist = cv2.distanceTransform(thresh, cv2.DIST_L2, 5)
+    dist = cv2.distanceTransform(thr, cv2.DIST_L2, 5)
     # normalize the distance transform such that the distances lie in
     # the range [0, 1] and then convert the distance transform back to
     # an unsigned 8-bit integer in the range [0, 255]
