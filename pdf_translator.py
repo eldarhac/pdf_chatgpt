@@ -102,7 +102,8 @@ def translate_pdf(input_pdf_path, dir_name=None, translate=True):
     with open(input_pdf_path, 'rb') as f:
         input_pdf_bytes = f.read()
     if dir_name is None:
-        dir_name = os.path.join(input_pdf_path[:-4])
+        dir_name = input_pdf_path[:-4]
+    os.makedirs(dir_name, exist_ok=True)
     images = convert_pdf_to_images(input_pdf_bytes)
     bar = st.progress(0, PROGRESS_TEXT)
     texts = extract_text(images, dir_name, bar)
