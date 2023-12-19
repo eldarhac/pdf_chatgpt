@@ -7,16 +7,20 @@ from deep_translator import GoogleTranslator
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import streamlit as st
 
 from config import config
+
+PROGRESS_TEXT = 'Translating PDF...'
 
 
 # Sub-task 2: Convert each PDF page to an image
 def convert_pdf_to_images(input_pdf_bytes):
     images = []
     # pages = convert_from_path(input_pdf_path, poppler_path=config["POPPLER_PATH"], thread_count=10)
-    pages = convert_from_bytes(input_pdf_bytes)
+    with st.spinner('Uploading PDF...'):
+        pages = convert_from_bytes(input_pdf_bytes, thread_count=10)
     images.extend(pages)
     return images
 
@@ -39,24 +43,36 @@ def process_image(i, image, dir_name):
     text = text.replace('שייח', 'ש״ח')
     text = text.replace('ימיס', 'ימים')
     os.remove(IMAGE_PATH)
-    return text
+    return text, i
 
 
-def extract_text(images, dir_name):
+def extract_text(images, dir_name, bar):
     pytesseract.pytesseract.tesseract_cmd = config["TESSERACT_PATH"]
     with ThreadPoolExecutor(max_workers=10) as executor:
-        texts = list(executor.map(lambda args: process_image(*args, dir_name), enumerate(images)))
+        text_futures = {executor.submit(process_image, i, image, dir_name): i for i, image in enumerate(images)}
+        texts = [None] * len(images)
+        for idx, future in enumerate(as_completed(text_futures), start=1):
+            progress = idx / (len(images) * 2)
+            # update progress bar
+            texts[future.result()[1]] = future.result()[0]
+            bar.progress(progress, PROGRESS_TEXT)
     return texts
 
 
 # Sub-task 4: Translate Hebrew text to English
 def translate_text(i, text):
-    return GoogleTranslator(source='auto', target='en').translate(text)
+    return GoogleTranslator(source='auto', target='en').translate(text), i
 
 
-def translate_texts(texts):
+def translate_texts(texts, bar):
     with ThreadPoolExecutor(max_workers=10) as executor:
-        translated_texts = list(executor.map(lambda args: translate_text(*args), enumerate(texts)))
+        text_futures = {executor.submit(translate_text, i, text): i for i, text in enumerate(texts)}
+        translated_texts = [None] * len(texts)
+        for idx, future in enumerate(as_completed(text_futures), start=1):
+            progress = (len(texts) + idx) / (len(texts) * 2)
+            # update progress bar
+            translated_texts[future.result()[1]] = future.result()[0]
+            bar.progress(progress, PROGRESS_TEXT)
     return translated_texts
 
 
@@ -88,13 +104,9 @@ def translate_pdf(input_pdf_path, dir_name=None, translate=True):
     if dir_name is None:
         dir_name = os.path.join(input_pdf_path[:-4])
     images = convert_pdf_to_images(input_pdf_bytes)
-    texts = extract_text(images, dir_name)
+    bar = st.progress(0, PROGRESS_TEXT)
+    texts = extract_text(images, dir_name, bar)
     if translate:
-        texts = translate_texts(texts)
+        texts = translate_texts(texts, bar)
+    bar.empty()
     return create_translated_pdf(texts, input_pdf_path)
-
-
-if __name__ == '__main__':
-    for file_path in ['nispah_gilui.pdf']:
-        os.makedirs(file_path[:-4], exist_ok=True)
-        translate_pdf(file_path, file_path[:-4], translate=True)
