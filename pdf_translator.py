@@ -45,7 +45,6 @@ def process_image(i, image, dir_name):
     # an unsigned 8-bit integer in the range [0, 255]
     dist = cv2.normalize(dist, dist, 0, 1.0, cv2.NORM_MINMAX)
     dist = (dist * 255).astype("uint8")
-    cv2.imshow("Dist", dist)
     # threshold the distance transform using Otsu's method
     dist = cv2.threshold(dist, 0, 255,
     	cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
