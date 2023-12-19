@@ -11,7 +11,6 @@ if uploaded_file is not None:
     file_path = 'uploaded_file.pdf'
     with open(file_path, 'wb') as tmpfile:
         tmpfile.write(uploaded_file.getvalue())
-        file_path = tmpfile.name
 
     # Translate the PDF (you'll implement the actual logic)
     translated_file_path = translate_pdf(file_path)
