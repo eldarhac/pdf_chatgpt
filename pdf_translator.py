@@ -37,7 +37,19 @@ def process_image(i, image, dir_name):
     img = cv2.resize(image, (w * 3, h * 3))
     gry = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     thr = cv2.threshold(gry, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-    text = pytesseract.image_to_string(thr, lang='heb')
+    # apply a distance transform which calculates the distance to the
+    # closest zero pixel for each pixel in the input image
+    dist = cv2.distanceTransform(thresh, cv2.DIST_L2, 5)
+    # normalize the distance transform such that the distances lie in
+    # the range [0, 1] and then convert the distance transform back to
+    # an unsigned 8-bit integer in the range [0, 255]
+    dist = cv2.normalize(dist, dist, 0, 1.0, cv2.NORM_MINMAX)
+    dist = (dist * 255).astype("uint8")
+    cv2.imshow("Dist", dist)
+    # threshold the distance transform using Otsu's method
+    dist = cv2.threshold(dist, 0, 255,
+    	cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    text = pytesseract.image_to_string(dist, lang='heb')
     text = text.replace('מייר', 'מ״ר')
     text = text.replace('עייי', 'ע״י')
     text = text.replace('שייח', 'ש״ח')
