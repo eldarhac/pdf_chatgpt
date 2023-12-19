@@ -74,7 +74,7 @@ def extract_text(images, dir_name, bar):
 
 # Sub-task 4: Translate Hebrew text to English
 def translate_text(i, text):
-    return GoogleTranslator(source='iw', target='en').translate(text), i
+    return GoogleTranslator(source='auto', target='en').translate(text), i
 
 
 def translate_texts(texts, bar):
