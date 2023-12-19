@@ -48,9 +48,7 @@ def process_image(i, image, dir_name):
     # threshold the distance transform using Otsu's method
     dist = cv2.threshold(dist, 0, 255,
     	cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-    opening = cv2.morphologyEx(dist, cv2.MORPH_OPEN, kernel)
-    text = pytesseract.image_to_string(opening, lang='heb')
+    text = pytesseract.image_to_string(dist, lang='heb')
     text = text.replace('מייר', 'מ״ר')
     text = text.replace('עייי', 'ע״י')
     text = text.replace('שייח', 'ש״ח')
