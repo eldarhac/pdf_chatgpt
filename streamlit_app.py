@@ -4,10 +4,8 @@ import tempfile
 from pdf_translator import translate_pdf
 from random import randint
 
-holder = st.empty()
-
 # File uploader allows the user to upload a PDF
-uploaded_file = holder.file_uploader("Choose a PDF file", type="pdf", key=2)
+uploaded_file = st.file_uploader("Choose a PDF file", type="pdf", key=2)
 
 if uploaded_file is not None:
     # Save the file to a temporary directory
@@ -24,4 +22,6 @@ if uploaded_file is not None:
         )
         
     #Optional: Clean up if you want to clear the uploaded file
-    holder.empty()
+    st.session_state.pop('key')
+    st.rerun()
+
